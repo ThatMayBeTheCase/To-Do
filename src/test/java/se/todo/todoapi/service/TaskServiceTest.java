@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -79,6 +80,25 @@ class TaskServiceTest {
         assertEquals("Pull docker images", response.getTitle());
         assertEquals("Timmy", response.getUserName());
         assertEquals("Work", response.getCategoryName());
+
+    }
+
+    @Test
+    void createTaskThrowsWhenUserDoesNotExist() {
+        CreateTaskRequest request = new CreateTaskRequest(
+                "Pull docker images", "Restart docker", false, 999, 2
+        );
+        when(userRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.createTask(request)
+        );
+
+        assertEquals("User not found", exception.getMessage());
+
+        verify(taskRepository, never()).save(any(Task.class));
 
     }
 
