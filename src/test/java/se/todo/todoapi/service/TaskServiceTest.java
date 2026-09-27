@@ -44,7 +44,7 @@ class TaskServiceTest {
 
     @Test
     void createTaskSavesTaskWhenUserAndCategoryExist() {
-        User user = new User("Timmy", "timmy@example.com");
+        User user = new User("Timmy", "timmy@example.se");
         Category category = new Category("Work");
 
         CreateTaskRequest request = new CreateTaskRequest(
@@ -97,6 +97,31 @@ class TaskServiceTest {
         );
 
         assertEquals("User not found", exception.getMessage());
+
+        verify(taskRepository, never()).save(any(Task.class));
+
+    }
+
+    @Test
+    void createTaskThrowsWhenCategoryDoesNotExist() {
+        User user = new User("Timmy", "timmy@example.se");
+
+        CreateTaskRequest request = new CreateTaskRequest(
+                "Pull docker images", "Restart docker", false, 1, 999
+        );
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(categoryRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.createTask(request)
+        );
+
+        assertEquals("Category not found", exception.getMessage());
 
         verify(taskRepository, never()).save(any(Task.class));
 
