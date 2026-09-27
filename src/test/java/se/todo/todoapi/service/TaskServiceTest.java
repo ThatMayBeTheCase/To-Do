@@ -127,5 +127,41 @@ class TaskServiceTest {
 
     }
 
+    @Test
+    void getTaskByIdReturnsExistingTask() {
+        User user = new User("Timmy", "timmy@example.se");
+        Category category = new Category("Work");
+
+        Task task = new Task(
+                "Pull docker images", "Restart docker", false, user, category
+        );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        TaskResponse response = taskService.getTaskById(1);
+
+        assertEquals("Pull docker images", response.getTitle());
+        assertEquals("Restart docker", response.getDescription());
+        assertFalse(response.isCompleted());
+        assertEquals("Timmy", response.getUserName());
+        assertEquals("Work", response.getCategoryName());
+
+        verify(taskRepository).findById(1);
+
+    }
+
+    @Test
+    void getTaskByIdThrowsWhenTaskDoesNotExist() {
+        when(taskRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.getTaskById(999)
+        );
+
+        assertEquals("Task not found", exception.getMessage());
+    }
 
 }
