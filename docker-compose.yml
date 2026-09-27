@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: todoapp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pw
+      MYSQL_DATABASE: todoapp
+      MYSQL_USER: todouser
+      MYSQL_PASSWORD: pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - todoapp_mysql_data:/var/lib/mysql
+
+volumes:
+  todoapp_mysql_data:

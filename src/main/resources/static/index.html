@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <title>To-Do list</title>
+</head>
+<body>
+    <div class="container">
+
+        <!--HERO-->
+        <header>
+            <h1>My To-Do <span id="dot">.</span></h1>
+        </header>
+
+        <!--TO-DO LIST-->
+        <section>
+            <form id="todo-form">
+                <label class="sr-only" for="todo-input">Add To-Do</label>
+                <input id="todo-input" name="todo" type="text" placeholder="What needs doing?" autocomplete="off" required>
+                <button type="submit">Add Task</button>
+            </form>
+
+            <div class="toolbar">
+                <p id="todo-counter">0 tasks</p>
+                <div class="filters">
+                    <button type="button" data-filter="all" class="active">All</button>
+                    <button type="button" data-filter="active">Active</button>
+                    <button type="button" data-filter="completed">Completed</button>
+                </div>
+            </div>
+
+            <ul id="todo-list"></ul>
+        </section>
+    </div>
+</body>
+</html>
