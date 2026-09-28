@@ -43,6 +43,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
@@ -51,6 +54,21 @@ jobs:
           tags: tag:github-actions
           ping: casemint
 
-      - name: Verify server access
-        run: tailscale ssh case@casemint 'whoami && docker compose version'
+      - name: Copy production Compose file
+        run: |
+          tailscale ssh case@casemint \
+          'cat > /home/case/srv/to-do/compose.production.yml' \
+          < compose.production.yml
 
+      - name: Deploy application
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          tailscale ssh case@casemint "
+          set -e
+          cd /home/case/srv/to-do
+          export IMAGE_TAG='$IMAGE_TAG'
+          docker compose -f compose.production.yml pull
+          docker compose -f compose.production.yml up -d --wait --wait-timeout 180
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 3 http://127.0.0.1:18080/ > /dev/null
+          "
