@@ -207,4 +207,97 @@ class TaskServiceTest {
         assertEquals("Workout", response.getCategoryName());
 
     }
+
+    @Test
+    void updateTaskThrowsWhenTaskDoesNotExist() {
+        UpdateTaskRequest request = new UpdateTaskRequest(
+                "New workouts", "Try new workouts", true, 2, 3
+        );
+
+        when(taskRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.updateTask(999, request)
+        );
+
+        assertEquals("Task not found", exception.getMessage());
+
+        verify(taskRepository, never()).save(any(Task.class));
+
+    }
+
+    @Test
+    void updateTaskThrowsWhenUserDoesNotExist() {
+        User user = new User("Timmy", "timmy@example.se");
+        Category category = new Category("Work");
+
+        Task task = new Task(
+                "Old title", "Old description", false, user, category
+        );
+
+        UpdateTaskRequest request = new UpdateTaskRequest(
+                "New title", "New description", true, 999, 2
+        );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(userRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.updateTask(1, request)
+        );
+
+        assertEquals("User not found", exception.getMessage());
+        verify(taskRepository, never()).save(any(Task.class));
+
+        assertEquals("Old title", task.getTitle());
+        assertEquals("Old description", task.getDescription());
+        assertFalse(task.isCompleted());
+        assertSame(user, task.getUser());
+        assertSame(category, task.getCategory());
+    }
+
+    @Test
+    void updateTaskThrowsWhenCategoryDoesNotExist() {
+        User oldUser = new User("Timmy", "timmy@example.se");
+        Category oldCategory = new Category("Work");
+
+        Task task = new Task(
+                "Old title", "Old description", false, oldUser, oldCategory
+        );
+
+        User newUser = new User("Vilma", "vilma@example.se");
+
+        UpdateTaskRequest request = new UpdateTaskRequest(
+                "New title", "New description", true, 2, 999
+        );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(userRepository.findById(2))
+                .thenReturn(Optional.of(newUser));
+
+        when(categoryRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.updateTask(1, request)
+        );
+
+        assertEquals("Category not found", exception.getMessage());
+        verify(taskRepository, never()).save(any(Task.class));
+
+        assertEquals("Old title", task.getTitle());
+        assertEquals("Old description", task.getDescription());
+        assertFalse(task.isCompleted());
+        assertSame(oldUser, task.getUser());
+        assertSame(oldCategory, task.getCategory());
+    }
 }
