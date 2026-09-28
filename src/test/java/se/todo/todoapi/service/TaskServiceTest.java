@@ -6,10 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.todo.todoapi.dto.CreateTaskRequest;
-import se.todo.todoapi.dto.TaskResponse;
 import se.todo.todoapi.entity.*;
 import se.todo.todoapi.repository.*;
+import se.todo.todoapi.dto.*;
 
 import java.util.Optional;
 
@@ -164,4 +163,48 @@ class TaskServiceTest {
         assertEquals("Task not found", exception.getMessage());
     }
 
+    @Test
+    void updateTaskUpdatesAndSavesExistingTask() {
+        User oldUser = new User("Timmy", "timmy@example.se");
+        Category oldCategory = new Category("Work");
+
+        Task task = new Task(
+                "Old title", "Old description", false, oldUser, oldCategory
+        );
+
+        User newUser = new User("Vilma", "vilma@example.se");
+        Category newCategory = new Category("Workout");
+
+        UpdateTaskRequest request = new UpdateTaskRequest(
+                "New workouts", "Try new workouts", true, 2, 3
+        );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(userRepository.findById(2))
+                .thenReturn(Optional.of(newUser));
+
+        when(categoryRepository.findById(3))
+                .thenReturn(Optional.of(newCategory));
+
+        when(taskRepository.save(task))
+                .thenReturn(task);
+
+        TaskResponse response = taskService.updateTask(1, request);
+
+        verify(taskRepository).save(task);
+
+        assertEquals("New workouts", task.getTitle());
+        assertEquals("Try new workouts", task.getDescription());
+        assertTrue(task.isCompleted());
+        assertSame(newUser, task.getUser());
+        assertSame(newCategory, task.getCategory());
+
+        assertEquals("New workouts", response.getTitle());
+        assertTrue(response.isCompleted());
+        assertEquals("Vilma", response.getUserName());
+        assertEquals("Workout", response.getCategoryName());
+
+    }
 }
