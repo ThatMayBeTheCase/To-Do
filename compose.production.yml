@@ -1,28 +1,29 @@
+name: todo-production
+
 services:
   app:
-    build: .
+    image: thatmaybethecase/to-do:${IMAGE_TAG:?IMAGE_TAG must be set}
+    restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:18080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/todoapp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: todouser
-      SPRING_DATASOURCE_PASSWORD: pw
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set}
     depends_on:
       mysql:
         condition: service_healthy
 
   mysql:
     image: mysql:8
-    container_name: todoapp-mysql
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: pw
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set}
       MYSQL_DATABASE: todoapp
       MYSQL_USER: todouser
-      MYSQL_PASSWORD: pw
-    ports:
-      - "127.0.0.1:3306:3306"
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set}
     volumes:
-      - todoapp_mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
       interval: 10s
@@ -31,4 +32,4 @@ services:
       start_period: 30s
 
 volumes:
-  todoapp_mysql_data:
+  mysql_data:
