@@ -1,0 +1,21 @@
+{
+  "name": "to-do",
+  "version": "1.0.0",
+  "description": "- Work in progress..",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThatMayBeTheCase/To-Do.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ThatMayBeTheCase/To-Do/issues"
+  },
+  "homepage": "https://github.com/ThatMayBeTheCase/To-Do#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3"
+  }
+}
