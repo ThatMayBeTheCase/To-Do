@@ -10,6 +10,7 @@ import se.todo.todoapi.entity.*;
 import se.todo.todoapi.repository.*;
 import se.todo.todoapi.dto.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -299,5 +300,15 @@ class TaskServiceTest {
         assertFalse(task.isCompleted());
         assertSame(oldUser, task.getUser());
         assertSame(oldCategory, task.getCategory());
+    }
+
+    @Test
+    void getAllTasksReturnsEmptyListWhenNoTasksExist() {
+        when(taskRepository.findAll())
+                .thenReturn(List.of());
+
+        List<TaskResponse> response = taskService.getAllTasks();
+
+        assertTrue(response.isEmpty());
     }
 }
