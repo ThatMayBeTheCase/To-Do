@@ -4,7 +4,9 @@ En enkel "att göra" lista där du kan skapa uppgifter, markera dem som klara oc
 
 Backend är byggd med Java och Spring Boot. Frontend använder HTML, CSS och JavaScript. Appen körs i Docker och deployas automatiskt till min server genom GitHub Actions.
 
-Appen har ingen inloggning. Frontend använder en gemensam standardanvändare och kategori; personliga konton kan bli en senare förbättring.
+API:et (`/api/**`) skyddas med HTTP Basic auth och ett gemensamt konto. Webbläsaren frågar efter användarnamn och lösenord första gången sidan hämtar uppgifter. Frontend använder en gemensam standardanvändare och kategori; personliga konton kan bli en senare förbättring.
+
+Lokalt är inloggningen `dev` / `dev`. På servern sätts den med `APP_USER` och `APP_PASSWORD` i `.env`.
 
 ## Appen på servern
 

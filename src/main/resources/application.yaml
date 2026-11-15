@@ -6,6 +6,12 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:todouser}
     password: ${SPRING_DATASOURCE_PASSWORD:pw}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  security:
+    user:
+      # Standardvärden för lokal utveckling. I produktion måste APP_USER och
+      # APP_PASSWORD sättas (compose.production.yml vägrar starta annars).
+      name: ${APP_USER:dev}
+      password: ${APP_PASSWORD:dev}
   jpa:
     hibernate:
       ddl-auto: update
