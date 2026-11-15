@@ -10,6 +10,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/todoapp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: todouser
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD must be set}
+      APP_USER: ${APP_USER:?APP_USER must be set}
+      APP_PASSWORD: ${APP_PASSWORD:?APP_PASSWORD must be set}
     depends_on:
       mysql:
         condition: service_healthy

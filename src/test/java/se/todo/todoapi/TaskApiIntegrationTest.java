@@ -3,11 +3,13 @@ package se.todo.todoapi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import se.todo.todoapi.dto.CreateTaskRequest;
 import se.todo.todoapi.dto.TaskResponse;
@@ -20,6 +22,7 @@ import se.todo.todoapi.repository.TaskRepository;
 import se.todo.todoapi.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestcontainersConfiguration.class)
@@ -37,7 +40,14 @@ class TaskApiIntegrationTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Value("${spring.security.user.name}")
+    private String username;
+
+    @Value("${spring.security.user.password}")
+    private String password;
+
     private RestClient client;
+    private RestClient anonymousClient;
 
     @BeforeEach
     void setUp() {
@@ -45,7 +55,45 @@ class TaskApiIntegrationTest {
         categoryRepository.deleteAll();
         userRepository.deleteAll();
 
-        client = RestClient.create("http://localhost:" + port);
+        String baseUrl = "http://localhost:" + port;
+        client = RestClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeaders(headers -> headers.setBasicAuth(username, password))
+                .build();
+        anonymousClient = RestClient.create(baseUrl);
+    }
+
+    @Test
+    void apiRequiresAuthentication() {
+        assertThatThrownBy(() -> anonymousClient.get()
+                .uri("/api/tasks")
+                .retrieve()
+                .toBodilessEntity())
+                .isInstanceOf(HttpClientErrorException.Unauthorized.class);
+    }
+
+    @Test
+    void apiRejectsWrongPassword() {
+        RestClient wrongPasswordClient = RestClient.builder()
+                .baseUrl("http://localhost:" + port)
+                .defaultHeaders(headers -> headers.setBasicAuth(username, "wrong-password"))
+                .build();
+
+        assertThatThrownBy(() -> wrongPasswordClient.get()
+                .uri("/api/tasks")
+                .retrieve()
+                .toBodilessEntity())
+                .isInstanceOf(HttpClientErrorException.Unauthorized.class);
+    }
+
+    @Test
+    void startPageIsPublic() {
+        var response = anonymousClient.get()
+                .uri("/")
+                .retrieve()
+                .toBodilessEntity();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test

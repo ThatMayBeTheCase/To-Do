@@ -11,6 +11,10 @@ module.exports = defineConfig({
   use: {
     baseURL: "http://127.0.0.1:8080",
     trace: "retain-on-failure",
+    httpCredentials: {
+      username: process.env.E2E_USER ?? "dev",
+      password: process.env.E2E_PASSWORD ?? "dev",
+    },
   },
 
   projects: [
